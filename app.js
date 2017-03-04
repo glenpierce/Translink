@@ -43,4 +43,12 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
+var mysql      = require('mysql');
+var connection = mysql.createConnection({
+    host     : 'localhost',
+    user     : 'root',
+    password : process.argv[2],
+    database : 'translink'
+});
+
 module.exports = app;
