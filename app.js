@@ -10,6 +10,8 @@ var users = require('./routes/users');
 
 var app = express();
 
+var http = require('http');
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -50,5 +52,55 @@ var connection = mysql.createConnection({
     password : process.argv[2],
     database : 'translink'
 });
+
+var options = {
+    host: 'api.translink.ca',
+    path: '/rttiapi/v1/buses?apikey=' + process.argv[3],
+    method: 'GET',
+    headers: {
+        'Content-Type': 'application/json'
+    }
+};
+
+http.get(options, (res) => {
+    const statusCode = res.statusCode;
+    const contentType = res.headers['content-type'];
+
+    var error;
+    if (statusCode !== 200) {
+        error = new Error(`Request Failed.\n` +
+            `Status Code: ${statusCode}`);
+    } else if (!/^application\/json/.test(contentType)) {
+        error = new Error(`Invalid content-type.\n` +
+            `Expected application/json but received ${contentType}`);
+    }
+    if (error) {
+        console.log(error.message);
+        // consume response data to free up memory
+        res.resume();
+        return;
+    }
+
+    res.setEncoding('utf8');
+    var rawData = '';
+    res.on('data', (chunk) => rawData += chunk);
+    res.on('end', () => {
+        try {
+            var parsedData = JSON.parse(rawData);
+    console.log(parsedData);
+    } catch (e) {
+        console.log(e.message);
+    }
+    });
+    }).on('error', (e) => {
+        console.log(`Got error: ${e.message}`);
+});
+
+// while(true){
+//     // connection.connect();
+//     //
+//     // connection.query('', function (err, rows, fields) {
+//
+// }
 
 module.exports = app;
