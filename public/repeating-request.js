@@ -1,6 +1,6 @@
 var http = require('http');
-require('dotenv').config()
-const TRANSLINK_API_KEY = process.env.TRANSLINK_API_KEY
+require('dotenv').config();
+const TRANSLINK_API_KEY = process.env.TRANSLINK_API_KEY;
 
 var request=require("request");
 
@@ -13,8 +13,9 @@ var requost = function(){
 		             console.log(response);
 		     }
 		})
-}
+};
 
 module.exports = function(){
-	setInterval(requost, 200000);
-}
+	setInterval(requost, 2000);
+};
+

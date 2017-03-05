@@ -112,6 +112,4 @@ function save(data){
 
 sendSms = require('./send_sms.js');
 
-sendSms.alert(6162626250, "Hello :)");
-
 module.exports = app;
