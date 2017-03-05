@@ -1,5 +1,7 @@
+require('dotenv').config()
+
 //require the Twilio module and create a REST client
-var client = require('twilio')('AC4f51d0993c42702a011431459ea6e613', '5a959d194da2eca86db9ef8238f72aa2');
+var client = require('twilio')(process.env.TWILIO_CLIENT_ID, process.env.TWILIO_API_KEY);
 var from_number = '+15167174604'
 var send_sms = {};
 //Send an SMS text message

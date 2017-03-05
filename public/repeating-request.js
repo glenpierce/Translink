@@ -1,13 +1,14 @@
 var http = require('http');
+require('dotenv').config()
+const TRANSLINK_API_KEY = process.env.TRANSLINK_API_KEY
 
 var options = {
-  host: 'example.com',
-  port: 80,
-  path: '/'
+  host: 'www.api.translink.ca',
+  path: '/rttiapi/v1/buses?apikey=' + TRANSLINK_API_KEY
 };
 
 function request() {
-  http.get(options, function(res){
+  http.request(options, function(res){
     res.on('data', function(chunk){
        console.log(chunk);
     });
@@ -17,8 +18,5 @@ function request() {
 }
 
 module.exports = function(){
-	// var request = function (){
-	// 	console.log('not repeating yetS')
-	// }
-	setInterval(request, 600);
+	setInterval(request, 2000);
 }
