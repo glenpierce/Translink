@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-
+var repeater = require('../public/repeating-request')
 /**
  * Module dependencies.
  */
@@ -24,6 +24,8 @@ var server = http.createServer(app);
 /**
  * Listen on provided port, on all network interfaces.
  */
+repeater()
+
 
 server.listen(port);
 server.on('error', onError);
