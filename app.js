@@ -82,25 +82,31 @@ http.get(options, (res) => {
     }
 
     res.setEncoding('utf8');
-    var rawData = '';
+    var rawData = "";
     res.on('data', (chunk) => rawData += chunk);
     res.on('end', () => {
         try {
-            var parsedData = JSON.parse(rawData);
-    console.log(parsedData);
-    } catch (e) {
-        console.log(e.message);
-    }
+            //var parsedData = JSON.parse(rawData);
+            rawData = removeSingleQuotes(rawData);
+            save(rawData);
+        } catch (e) {
+            console.log(e.message);
+        }
     });
     }).on('error', (e) => {
         console.log(`Got error: ${e.message}`);
 });
 
-// while(true){
-//     // connection.connect();
-//     //
-//     // connection.query('', function (err, rows, fields) {
-//
-// }
+function removeSingleQuotes(text){
+    return text.replace(/'/g, "");
+}
+
+function save(data){
+    connection.connect();
+
+    connection.query('INSERT INTO JsonTable (jsonData) VALUES (\'' + data + '\')', function (err, rows, fields) {
+        console.log(data);
+    });
+}
 
 module.exports = app;
