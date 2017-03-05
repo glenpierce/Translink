@@ -55,6 +55,8 @@ var connection = mysql.createConnection({
     database : 'translink'
 });
 
+connection.connect();
+
 var options = {
     host: 'api.translink.ca',
     path: '/rttiapi/v1/buses?apikey=' + process.env.TRANSLINK_API_KEY,
@@ -64,52 +66,54 @@ var options = {
     }
 };
 
-http.get(options, (res) => {
-    const statusCode = res.statusCode;
-    const contentType = res.headers['content-type'];
+var repeatingRequest = function() {
+    http.get(options, (res) => {
+        const statusCode = res.statusCode;
+        const contentType = res.headers['content-type'];
 
-    var error;
-    if (statusCode !== 200) {
-        error = new Error(`Request Failed.\n` +
-            `Status Code: ${statusCode}`);
-    } else if (!/^application\/json/.test(contentType)) {
-        error = new Error(`Invalid content-type.\n` +
-            `Expected application/json but received ${contentType}`);
-    }
-    if (error) {
-        console.log(error.message);
-        // consume response data to free up memory
-        res.resume();
-        return;
-    }
-
-    res.setEncoding('utf8');
-    var rawData = "";
-    res.on('data', (chunk) => rawData += chunk);
-    res.on('end', () => {
-        try {
-            rawData = removeSingleQuotes(rawData);
-            save(rawData);
-        } catch (e) {
-            console.log(e.message);
+        var error;
+        if (statusCode !== 200) {
+            error = new Error(`Request Failed.\n` +
+                `Status Code: ${statusCode}`);
+        } else if (!/^application\/json/.test(contentType)) {
+            error = new Error(`Invalid content-type.\n` +
+                `Expected application/json but received ${contentType}`);
         }
-    });
+        if (error) {
+            console.log(error.message);
+            // consume response data to free up memory
+            res.resume();
+            return;
+        }
+
+        res.setEncoding('utf8');
+        var rawData = "";
+        res.on('data', (chunk) => rawData += chunk);
+        res.on('end', () => {
+            try {
+                rawData = removeSingleQuotes(rawData);
+                save(rawData);
+            } catch (e) {
+                console.log(e.message);
+            }
+        });
     }).on('error', (e) => {
         console.log(`Got error: ${e.message}`);
-});
+    });
+}
+
+setInterval(repeatingRequest, 5000);
 
 function removeSingleQuotes(text){
     return text.replace(/'/g, "");
 }
 
 function save(data){
-    connection.connect();
-
     connection.query('INSERT INTO JsonTable (jsonData) VALUES (\'' + data + '\')', function (err, rows, fields) {
         console.log(data);
     });
 }
 
-sendSms = require('./send_sms.js');
+// sendSms = require('./send_sms.js');
 
 module.exports = app;
