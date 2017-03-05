@@ -16,5 +16,5 @@ var requost = function(){
 }
 
 module.exports = function(){
-	setInterval(requost, 2000);
+	setInterval(requost, 200000);
 }
