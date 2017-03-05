@@ -45,17 +45,19 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
+require('dotenv').config();
+
 var mysql      = require('mysql');
 var connection = mysql.createConnection({
     host     : 'localhost',
     user     : 'root',
-    password : process.argv[2],
+    password : process.env.MYSQL_PASSWORD,
     database : 'translink'
 });
 
 var options = {
     host: 'api.translink.ca',
-    path: '/rttiapi/v1/buses?apikey=' + process.argv[3],
+    path: '/rttiapi/v1/buses?apikey=' + process.env.TRANSLINK_API_KEY,
     method: 'GET',
     headers: {
         'Content-Type': 'application/json'
@@ -86,7 +88,6 @@ http.get(options, (res) => {
     res.on('data', (chunk) => rawData += chunk);
     res.on('end', () => {
         try {
-            //var parsedData = JSON.parse(rawData);
             rawData = removeSingleQuotes(rawData);
             save(rawData);
         } catch (e) {
@@ -108,5 +109,9 @@ function save(data){
         console.log(data);
     });
 }
+
+sendSms = require('./send_sms.js');
+
+sendSms.alert(6162626250, "Hello :)");
 
 module.exports = app;
